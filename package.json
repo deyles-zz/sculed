@@ -1,0 +1,13 @@
+{
+  "private":false,
+  "version":"0.0.1",
+  "name": "sculeserver",
+  "description": "SculeJS data structure server",
+  "author": "Dan Eyles <dan@irlgaming.com>",
+  "repository" : {"type": "git", "url": "git@github.com:dan-eyles/sculejs.git"},
+  "engine": "node >= 0.8",
+  "dependencies":[],
+  "scripts": {
+      "test":"expresso tests/*"
+  }
+}
