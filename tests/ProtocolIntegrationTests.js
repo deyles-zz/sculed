@@ -43,13 +43,12 @@ exports['test ProtocolIntegration'] = function(beforeExit, assert) {
     assert.equal(JSON.stringify(o.__options), JSON.stringify([ '3000' ]));
     assert.ok(o.__struct);
     
-    for (var i=0; i < 1000; i++) {
-        handler.handle("Command\tset\nKey\tmybtree\nSubKey\tkey" + i + "\nValue\tvalue" + i + "\n\r");
+    for (var i=0; i < 100; i++) {
+        handler.handle("Command\tset\nKey\ts:\"mybtree\"\nSubKey\ti:" + i + "\nValue\ts:\"value" + i + "\"\n\r");
     }
-    handler.handle("Command\tget\nKey\tmybtree\nSubKey\tkey1\n\r");
-    handler.handle("Command\trange\nKey\tmybtree\nRangeDef\tkey1, key19, 1, 1\n\r");
+    handler.handle("Command\tget\nKey\tmybtree\nSubKey\ti:1\n\r");
+    handler.handle("Command\trange\nKey\ts:\"mybtree\"\nRangeDef\ti:1, i:18, i:1, i:0\n\r");
     
-    /*
     handler.handle("Command\tpush\nKey\tmyqueue\nValue\tvalue1\n\r");
     handler.handle("Command\tpush\nKey\tmyqueue\nValue\tvalue2\n\r");
     handler.handle("Command\tpush\nKey\tmyqueue\nValue\tvalue3\n\r");
@@ -58,26 +57,24 @@ exports['test ProtocolIntegration'] = function(beforeExit, assert) {
     handler.handle("Command\tpop\nKey\tmyqueue\n\r");
     handler.handle("Command\tpop\nKey\tmyqueue\n\r");
     handler.handle("Command\tpop\nKey\tmyqueue\n\r");
-    */
    
-    /*
     handler.handle("Command\tcount\nKey\tmynewhashtable\n\r");
     handler.handle("Command\tset\nKey\tmynewhashtable\nSubKey\tkey1\nValue\tvalue1\n\r");
     handler.handle("Command\tset\nKey\tmynewhashtable\nSubKey\tkey2\nValue\tvalue2\n\r");
     handler.handle("Command\tset\nKey\tmynewhashtable\nSubKey\tkey3\nValue\t\"here is a binary safe string\"\n\r");
     handler.handle("Command\tget\nKey\tmynewhashtable\nSubKey\tkey1\n\r");
     handler.handle("Command\tget\nKey\tmynewhashtable\nSubKey\tkey3\n\r");
+
     handler.handle("Command\tcontains\nKey\tmynewhashtable\nSubKey\tkey3\n\r");
     handler.handle("Command\tclear\nKey\tmynewhashtable\n\r");
     handler.handle("Command\tcontains\nKey\tmynewhashtable\nSubKey\tkey3\n\r");
     
-    handler.handle("Command\tincrement\nKey\tmycounter\nValue\t1\n\r");
-    handler.handle("Command\tincrement\nKey\tmycounter\nValue\t1\n\r");
-    handler.handle("Command\tincrement\nKey\tmycounter\nValue\t1\n\r");
+    handler.handle("Command\tincrement\nKey\tmycounter\nValue\ti:1\n\r");
+    handler.handle("Command\tincrement\nKey\tmycounter\nValue\ti:1\n\r");
+    handler.handle("Command\tincrement\nKey\tmycounter\nValue\ti:1\n\r");
     handler.handle("Command\tcount\nKey\tmycounter\n\r");
-    handler.handle("Command\tdecrement\nKey\tmycounter\nValue\t1\n\r");
+    handler.handle("Command\tdecrement\nKey\tmycounter\nValue\ti:1\n\r");
     handler.handle("Command\tcount\nKey\tmycounter\n\r");
-    */
     
     handler.handle("Command\tdestroy\nKey\tmynewhashtable\n\r");
     handler.handle("Command\tdestroy\nKey\tmycounter\n\r");
