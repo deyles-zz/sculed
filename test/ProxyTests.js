@@ -27,8 +27,7 @@
 
 var assert   = require('assert');
 var factory  = require('../lib/proxy');
-
-var scule  = require('sculejs');
+var scule    = require('sculejs');
 factory.setScule(scule);
 
 describe('Proxy', function() {

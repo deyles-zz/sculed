@@ -29,9 +29,7 @@ var uuid     = require('node-uuid');
 var assert   = require('assert');
 var protocol = require('../lib/protocol');
 var core     = require('../lib/core');
-
-var scule  = require('sculejs');
-core.setScule(scule);
+core.setDebug(false);
 
 var tests = {};
 tests.SocketMock = function() {
@@ -444,6 +442,23 @@ describe('Protocol', function() {
         assert.equal('ok',  socket.response.data.message);
         assert.equal(200,   socket.response.data.status);
         socket.reset();
+       
+        /**
+         * Tests for statistics
+         */
+        socket.invoke(['stats'], {
+            uuid: hash
+        });
+        assert.equal('stats', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        assert.equal(0, socket.response.data.stats.uptime_s);
+        assert.equal(0, socket.response.data.stats.trans_s);
+        assert.equal(14, socket.response.data.stats.writes);
+        assert.equal(12, socket.response.data.stats.reads);
+        assert.equal(26, socket.response.data.stats.trans);
+        socket.reset();       
        
         socket.invoke(['destroy'], {
             uuid:     hash,

@@ -5,7 +5,6 @@ var counter;
 var queue;
 var hash;
 
-//client.connect('166.78.12.141', 72853, function() { 
 client.connect('127.0.0.1', 72853, function() {
     counter = client.getCounter('counter', null, function(err, data) { startCounterTests(); });
     queue   = client.getQueue('queue', null, function(err, data) { startQueueTests(); });
@@ -17,15 +16,19 @@ function startHashTableTests() {
         if (!hash) {
             return;
         }
-        var key = uuid.v4();
-        hash.set(key, (new Date()).getTime());
-    }, 100);
+        for (var i=0; i < 1000; i++) {
+            var key = uuid.v4();
+            hash.set(key, (new Date()).getTime());
+        }
+    }, 1000);
     setInterval(function() {
         if (!hash) {
             return;
-        }    
-        hash.contains(uuid.v4());
-    }, 150);    
+        }  
+        for (var i=0; i < 100; i++) {
+            hash.contains(uuid.v4());
+        }
+    }, 1500);  
 };
 
 function startQueueTests() {
@@ -39,8 +42,10 @@ function startQueueTests() {
         if (!queue) {
             return;
         }    
-        queue.enqueue('new_' + (new Date()).getTime());
-    }, 150);
+        for (var i=0; i < 1000; i++) {
+            queue.enqueue('new_' + (new Date()).getTime());
+        }
+    }, 500);
 };
 
 function startCounterTests() {

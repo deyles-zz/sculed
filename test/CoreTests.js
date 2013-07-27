@@ -27,14 +27,12 @@
 
 var assert = require('assert');
 var core   = require('../lib/core');
-
-var scule  = require('sculejs');
-core.setScule(scule);
+core.setDebug(false);
 
 describe('Core', function() {
     it('should add a new hash table instance to the data structure registry', function() {
         var registry = core.getDataStructureRegistry();
-        registry.put('mynewhashtable', scule.getHashTable(1500));
+        registry.put('mynewhashtable', 'foo');
         assert.equal(true, registry.contains('mynewhashtable'));        
     });
     it('should spawn several different data structures', function() {
@@ -57,8 +55,83 @@ describe('Core', function() {
             director.spawnDataStructure('test', 'HashTable', [1000]);
         } catch (e) {
             exception = true;
-            assert.equal(e, 'data structure corresponding to key test already exists');
+            assert.equal(e.message, 'data structure corresponding to key test already exists');
         }
         assert.equal(true, exception);        
+    });
+    describe('ServerStatistics', function() {
+        it('should add a new struct key to the statistics object', function() {
+            var stats = core.getServerStatistics();
+            stats.addKey('test', 'HashTable');
+            assert.equal(true, stats.statistics.hasOwnProperty('test'));
+            assert.equal('HashTable', stats.statistics.test.type);
+            assert.equal(0, stats.statistics.test.reads);
+            assert.equal(0, stats.statistics.test.writes);
+        });
+        it('should remove a struct key from the statistics object', function() {
+            var stats = core.getServerStatistics();
+            stats.addKey('test', 'HashTable');
+            stats.removeKey('test');
+            assert.equal(false, stats.statistics.hasOwnProperty('test'));
+        });
+        it('should increment the number of writes on a struct key', function() {
+            var stats = core.getServerStatistics();
+            stats.addKey('test', 'HashTable');
+            stats.logWrite('test');
+            assert.equal(1, stats.writes);
+            assert.equal(0, stats.statistics.test.reads);
+            assert.equal(1, stats.statistics.test.writes);
+            stats.logWrite('test');
+            assert.equal(2, stats.writes);
+            assert.equal(2, stats.statistics.test.writes); 
+            stats.addKey('test2', 'BinarySearchTree');
+            stats.logWrite('test2');
+            assert.equal(3, stats.writes);
+            assert.equal(0, stats.statistics.test.reads);
+            assert.equal(2, stats.statistics.test.writes);            
+        });
+        it('should increment the number of reads on a struct key', function() {
+            var stats = core.getServerStatistics();
+            stats.addKey('test', 'HashTable');
+            stats.logRead('test');
+            assert.equal(0, stats.writes);
+            assert.equal(1, stats.statistics.test.reads);
+            assert.equal(1, stats.statistics.test.reads);
+            stats.logRead('test');
+            assert.equal(2, stats.reads);
+            assert.equal(2, stats.statistics.test.reads); 
+            stats.addKey('test2', 'BinarySearchTree');
+            stats.logRead('test2');
+            assert.equal(3, stats.reads);
+            assert.equal(0, stats.statistics.test.writes);
+            assert.equal(2, stats.statistics.test.reads);            
+        });
+        it('should serialize server statistics', function() {
+            var stats = core.getServerStatistics();
+            stats.timestamp = (new Date()).getTime() - (5000 * 10);
+            stats.addKey('test', 'HashTable');
+            for (var i=0; i < 100; i++) {
+                stats.logRead('test');
+                stats.logWrite('test');
+                stats.logWrite('test');
+            }
+            stats.addKey('test2', 'BinarySearchTree');
+            for (var j=0; j < 100; j++) {
+                stats.logRead('test2');
+                stats.logWrite('test2');
+            }
+            var o = stats.serialize();
+            assert.equal(50, o.uptime_s);
+            assert.equal(10, o.trans_s);
+            assert.equal(300, o.writes);
+            assert.equal(200, o.reads);
+            assert.equal(500, o.trans);
+            assert.equal(true, o.statistics.hasOwnProperty('test'));
+            assert.equal(100, o.statistics.test.reads);
+            assert.equal(200, o.statistics.test.writes);
+            assert.equal(true, o.statistics.hasOwnProperty('test2'));
+            assert.equal(100, o.statistics.test2.reads);
+            assert.equal(100, o.statistics.test2.writes);
+        });
     });
 });
