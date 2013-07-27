@@ -1,36 +1,28 @@
 var client = require('../lib/client.js');
 
 var counter;
-var table;
+var queue;
 
-client.connect('127.0.0.1', 72853, function() { 
-    counter = client.getAtomicCounter('mycounter', null, function(err, data) {
-        testCounter();
-    });
-    table = client.getHashTable('lookup', null, function(err, data) {
-        testHashTable();
-    });
+//client.connect('166.78.12.141', 72853, function() { 
+client.connect('127.0.0.1', 72853, function() {
+    counter = client.getCounter('counter', null, function(err, data) {});
+    queue = client.getQueue('queue', null, function(err, data) {});
 });
 
-function testCounter() {
-    for (var i=0; i < 1000; i++) {
-        counter.increment(1);
-    }
-    counter.count(function(err, data) {
+setInterval(function() {
+    queue.dequeue(function(err, data) {});
+}, 100);
+
+setInterval(function() {
+    queue.enqueue('new_' + (new Date()).getTime());
+}, 150);
+
+setInterval(function() {
+    counter.increment(1);
+}, 50);
+
+setInterval(function() {
+    client.getStatistics(function(err, data) {
         console.log(data);
     });
-};
-
-function testHashTable() {
-    var i = 0;
-    for (i=0; i < 1000; i++) {
-        table.set('key' + i, 'value' + i, function(err, data) {
-            console.log(data);
-        });
-    }
-    for (i=0; i < 1000; i++) {
-        table.get('key' + i, function(err, data) {
-            console.log(data);
-        });
-    }    
-};
+}, 10000);
