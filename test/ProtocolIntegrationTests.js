@@ -25,6 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+var uuid     = require('node-uuid');
 var assert   = require('assert');
 var protocol = require('../lib/protocol');
 var core     = require('../lib/core');
@@ -32,60 +33,437 @@ var core     = require('../lib/core');
 var scule  = require('sculejs');
 core.setScule(scule);
 
+var tests = {};
+tests.SocketMock = function() {
+
+    this.response = null;
+    this.handlers = {};
+
+    this.data = function(namespace, handler) {
+        var key = JSON.stringify(namespace);
+        this.handlers[key] = handler;
+    };
+
+    this.invoke = function(namespace, data) {
+        var key = JSON.stringify(namespace);
+        this.handlers[key](data);
+    };
+
+    this.send = function(namespace, data) {
+        this.response = {
+            namespace: namespace,
+            data: data
+        };        
+    };
+
+    this.reset = function() {
+        this.response = null;
+    };
+
+};
+
 describe('Protocol', function() {
     it('should execute various SculeServer functions locally', function() {
+        
+        var socket   = new tests.SocketMock();
         var director = core.getDataStructureRegistryDirector();
-        var handler  = protocol.getProtocolAdaptor(director);
-        handler.handle("Command\tnew\nKey\tmynewhashtable\nClass\tHashTable\nOptions\t3000\n\r");
-        handler.handle("Command\tnew\nKey\tmycounter\nClass\tAtomicCounter\nOptions\t0\n\r");
-        handler.handle("Command\tnew\nKey\tmyqueue\nClass\tQueue\nOptions\t\n\r");
-        handler.handle("Command\tnew\nKey\tmybtree\nClass\tBinarySearchTree\nOptions\t3000, 500\n\r");
+        protocol.getProtocolAdaptor(director, socket);
+        
+        var hash = uuid.v4();
+        
+        /**
+         * Tests for constructors
+         */ 
+        
+        socket.invoke(['new'], {
+            uuid:     hash,
+            key:     'hashy',
+            type:    'HashTable',
+            options: [1000]
+        });
+        assert.equal('new', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
 
-        assert.equal(true, director.registry.contains('mynewhashtable'));
+        socket.invoke(['new'], {
+            uuid:     hash,
+            key:     'counter',
+            type:    'AtomicCounter',
+            options: [0]
+        });
+        assert.equal('new', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
 
-        var o = director.getDataStructure('mynewhashtable');
-        assert.equal(o.__class, 'HashTable');
-        assert.equal(JSON.stringify(o.__options), JSON.stringify([ '3000' ]));
-        assert.ok(o.__struct);
+        socket.invoke(['new'], {
+            uuid:     hash,
+            key:     'stack',
+            type:    'LIFOStack',
+            options: [0]
+        });
+        assert.equal('new', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
 
-        for (var i=0; i < 100; i++) {
-            handler.handle("Command\tset\nKey\ts:\"mybtree\"\nSubKey\ti:" + i + "\nValue\ts:\"value" + i + "\"\n\r");
-        }
-        handler.handle("Command\tget\nKey\tmybtree\nSubKey\ti:1\n\r");
-        handler.handle("Command\trange\nKey\ts:\"mybtree\"\nRangeDef\ti:1, i:18, i:1, i:0\n\r");
+        /**
+         * HashTable tests
+         */
 
-        handler.handle("Command\tpush\nKey\tmyqueue\nValue\tvalue1\n\r");
-        handler.handle("Command\tpush\nKey\tmyqueue\nValue\tvalue2\n\r");
-        handler.handle("Command\tpush\nKey\tmyqueue\nValue\tvalue3\n\r");
-        handler.handle("Command\tpush\nKey\tmyqueue\nValue\tvalue4\n\r");
-        handler.handle("Command\tpeek\nKey\tmyqueue\n\r");
-        handler.handle("Command\tpop\nKey\tmyqueue\n\r");
-        handler.handle("Command\tpop\nKey\tmyqueue\n\r");
-        handler.handle("Command\tpop\nKey\tmyqueue\n\r");
+        socket.invoke(['set'], {
+            uuid:     hash,
+            key:     'hashy',
+            subkey:  'foo',
+            value:   'bar'            
+        });
+        assert.equal('set', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
 
-        handler.handle("Command\tcount\nKey\tmynewhashtable\n\r");
-        handler.handle("Command\tset\nKey\tmynewhashtable\nSubKey\tkey1\nValue\tvalue1\n\r");
-        handler.handle("Command\tset\nKey\tmynewhashtable\nSubKey\tkey2\nValue\tvalue2\n\r");
-        handler.handle("Command\tset\nKey\tmynewhashtable\nSubKey\tkey3\nValue\t\"here is a binary safe string\"\n\r");
-        handler.handle("Command\tget\nKey\tmynewhashtable\nSubKey\tkey1\n\r");
-        handler.handle("Command\tget\nKey\tmynewhashtable\nSubKey\tkey3\n\r");
+        socket.invoke(['set'], {
+            uuid:     hash,
+            key:     'hashy',
+            subkey:  'foo1',
+            value:   'bar1'            
+        });
+        assert.equal('set', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
 
-        handler.handle("Command\tcontains\nKey\tmynewhashtable\nSubKey\tkey3\n\r");
-        handler.handle("Command\tclear\nKey\tmynewhashtable\n\r");
-        handler.handle("Command\tcontains\nKey\tmynewhashtable\nSubKey\tkey3\n\r");
+        socket.invoke(['get'], {
+            uuid:     hash,
+            key:     'hashy',
+            subkey:  'foo'            
+        });
+        assert.equal('get', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal('bar', socket.response.data.data);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
 
-        handler.handle("Command\tincrement\nKey\tmycounter\nValue\ti:1\n\r");
-        handler.handle("Command\tincrement\nKey\tmycounter\nValue\ti:1\n\r");
-        handler.handle("Command\tincrement\nKey\tmycounter\nValue\ti:1\n\r");
-        handler.handle("Command\tcount\nKey\tmycounter\n\r");
-        handler.handle("Command\tdecrement\nKey\tmycounter\nValue\ti:1\n\r");
-        handler.handle("Command\tcount\nKey\tmycounter\n\r");
+        socket.invoke(['count'], {
+            uuid:     hash,
+            key:     'hashy'          
+        });
+        assert.equal('count', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal(2,     socket.response.data.data);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
 
-        handler.handle("Command\tdestroy\nKey\tmynewhashtable\n\r");
-        handler.handle("Command\tdestroy\nKey\tmycounter\n\r");
-        handler.handle("Command\tdestroy\nKey\tmyqueue\n\r");
-        handler.handle("Command\tdestroy\nKey\tmybtree\n\r");
+        socket.invoke(['unset'], {
+            uuid:     hash,
+            key:     'hashy',
+            subkey:  'foo'            
+        });
+        assert.equal('unset', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
 
-        assert.equal(false, director.registry.contains('mynewhashtable'));        
+        socket.invoke(['count'], {
+            uuid:     hash,
+            key:     'hashy'          
+        });
+        assert.equal('count', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal(1,     socket.response.data.data);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
+
+        socket.invoke(['contains'], {
+            uuid:     hash,
+            key:     'hashy',
+            subkey:  'foo'            
+        });
+        assert.equal('contains', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal(false, socket.response.data.data);        
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
+
+        socket.invoke(['contains'], {
+            uuid:     hash,
+            key:     'hashy',
+            subkey:  'foo1'            
+        });
+        assert.equal('contains', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal(true, socket.response.data.data);        
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
+
+        socket.invoke(['clear'], {
+            uuid:     hash,
+            key:     'hashy'          
+        });
+        assert.equal('clear', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
+
+        socket.invoke(['count'], {
+            uuid:     hash,
+            key:     'hashy'          
+        });
+        assert.equal('count', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal(0,     socket.response.data.data);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
+
+        /**
+         * Should throw an error
+         */
+
+        socket.invoke(['clear'], {
+            uuid:     hash,
+            key:     'slashy'          
+        });
+        assert.equal('error', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal('key does not exist',  socket.response.data.message);
+        assert.equal(404,   socket.response.data.status);
+        socket.reset();
+
+        /**
+         * Stack tests
+         */
+
+        socket.invoke(['count'], {
+            uuid:     hash,
+            key:     'stack'          
+        });
+        assert.equal('count', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal(0,     socket.response.data.data);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
+
+        socket.invoke(['push'], {
+            uuid:     hash,
+            key:     'stack',
+            value:   'foo0'            
+        });
+        assert.equal('push', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
+
+        socket.invoke(['push'], {
+            uuid:     hash,
+            key:     'stack',
+            value:   'foo1'            
+        });
+        assert.equal('push', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
+
+        socket.invoke(['push'], {
+            uuid:     hash,
+            key:     'stack',
+            value:   'foo2'            
+        });
+        assert.equal('push', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
+
+        socket.invoke(['count'], {
+            uuid:     hash,
+            key:     'stack'          
+        });
+        assert.equal('count', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal(3,     socket.response.data.data);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
+
+        socket.invoke(['pop'], {
+            uuid:     hash,
+            key:     'stack'           
+        });
+        assert.equal('pop', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal('foo2',  socket.response.data.data);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
+
+        socket.invoke(['count'], {
+            uuid:     hash,
+            key:     'stack'          
+        });
+        assert.equal('count', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal(2,     socket.response.data.data);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
+
+         /**
+          * Counter tests
+          */
+
+        socket.invoke(['count'], {
+            uuid:     hash,
+            key:     'counter'          
+        });
+        assert.equal('count', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal(0,     socket.response.data.data);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
+
+        socket.invoke(['increment'], {
+            uuid:     hash,
+            key:     'counter',
+            value:   1
+        });
+        assert.equal('increment', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal(1,     socket.response.data.data);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
+
+        socket.invoke(['increment'], {
+            uuid:     hash,
+            key:     'counter',
+            value:   99
+        });
+        assert.equal('increment', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal(100,     socket.response.data.data);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
+
+        socket.invoke(['decrement'], {
+            uuid:     hash,
+            key:     'counter',
+            value:   10
+        });
+        assert.equal('decrement', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal(90,     socket.response.data.data);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
+
+        socket.invoke(['increment'], {
+            uuid:     hash,
+            key:     'counter',
+            value:   -9
+        });
+        assert.equal('increment', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal(81,     socket.response.data.data);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
+
+        socket.invoke(['decrement'], {
+            uuid:     hash,
+            key:     'counter',
+            value:   -9
+        });
+        assert.equal('decrement', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal(90,     socket.response.data.data);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
+
+        socket.invoke(['count'], {
+            uuid:     hash,
+            key:     'counter'          
+        });
+        assert.equal('count', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal(90,     socket.response.data.data);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
+
+        socket.invoke(['clear'], {
+            uuid:     hash,
+            key:     'counter'          
+        });
+        assert.equal('clear', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
+
+        socket.invoke(['count'], {
+            uuid:     hash,
+            key:     'counter'          
+        });
+        assert.equal('count', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal(0,     socket.response.data.data);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
+
+        /**
+         * Tests for destructors
+         */
+
+        socket.invoke(['destroy'], {
+            uuid:     hash,
+            key:     'hashy'          
+        });
+        assert.equal('destroy', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
+       
+        socket.invoke(['destroy'], {
+            uuid:     hash,
+            key:     'counter'          
+        });
+        assert.equal('destroy', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
+
+        socket.invoke(['destroy'], {
+            uuid:     hash,
+            key:     'stack'          
+        });
+        assert.equal('destroy', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
+       
     });
 });

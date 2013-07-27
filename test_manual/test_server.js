@@ -1,19 +1,36 @@
-var net = require('net');
+var client = require('../lib/client.js');
 
-var i = 0;
-var socket = net.createConnection(72853, 'localhost');
-socket.setNoDelay(true);
-socket.on('connect', function() {
-        console.log('connected');
-        socket.write("Command\tnew\nKey\tmynewhashtable\nClass\tHashTable\nOptions\t3000\n\r", function() {
+var counter;
+var table;
+
+client.connect('127.0.0.1', 72853, function() { 
+    counter = client.getAtomicCounter('mycounter', null, function(err, data) {
+        testCounter();
+    });
+    table = client.getHashTable('lookup', null, function(err, data) {
+        testHashTable();
     });
 });
-socket.on('data', function(frame) {
-    console.log(frame.toString() + "\n\n");
-});
 
-var i = 0;
-setInterval(function() {
-    socket.write("Command\tset\nKey\tmynewhashtable\nSubKey\tkey" + i + "\nValue\tvalue" + i + "\n\r");
-    i++;
-}, 200);
+function testCounter() {
+    for (var i=0; i < 1000; i++) {
+        counter.increment(1);
+    }
+    counter.count(function(err, data) {
+        console.log(data);
+    });
+};
+
+function testHashTable() {
+    var i = 0;
+    for (i=0; i < 1000; i++) {
+        table.set('key' + i, 'value' + i, function(err, data) {
+            console.log(data);
+        });
+    }
+    for (i=0; i < 1000; i++) {
+        table.get('key' + i, function(err, data) {
+            console.log(data);
+        });
+    }    
+};

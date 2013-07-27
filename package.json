@@ -6,7 +6,10 @@
   "author": "Dan Eyles <dan@irlgaming.com>",
   "repository" : {"type": "git", "url": "git@github.com:dan-eyles/sculejs.git"},
   "engine": "node >= 0.8",
-  "dependencies":[],
+  "dependencies":{
+      "nssocket":">= 0.5.1",
+      "node-uuid": ">= 1.4.0"
+  },
   "scripts": {
       "test":"mocha test/*"
   }
