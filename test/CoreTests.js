@@ -25,42 +25,38 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-var core  = require('../lib/core');
-var scule = require('sculejs');
+var assert = require('assert');
+var core   = require('../lib/core');
+var scule  = require('sculejs');
 
-exports['test DataStructureRegistry'] = function(beforeExit, assert) {   
-    var registry = core.getDataStructureRegistry();
-    registry.put('mynewhashtable', scule.datastructures.getHashTable(1500));
-    assert.equal(true, registry.contains('mynewhashtable'));
-};
-
-exports['test DataStructureSpawner'] = function(beforeExit, assert) {
-    var spawner = core.getDataStructureSpawner();
-    
-    var table   = spawner.spawn('HashTable', [5000]);
-    assert.ok(table);
-    
-    var bitset  = spawner.spawn('BitSet', [5000, 300]);
-    assert.ok(bitset);
-    
-    var list    = spawner.spawn('LinkedList', []);
-    assert.ok(list);
-    
-    var cache   = spawner.spawn('LRUCache', [100]);
-    assert.ok(cache);
-};
-
-exports['test DataStructureRegistryDirector'] = function(beforeExit, assert) {
-    var director = core.getDataStructureRegistryDirector();
-    var struct   = director.spawnDataStructure('test', 'HashTable', [1000]);
-    assert.ok(struct);
-    
-    var exception = false;
-    try {
-        director.spawnDataStructure('test', 'HashTable', [1000]);
-    } catch (e) {
-        exception = true;
-        assert.equal(e, 'data structure corresponding to key test already exists');
-    }
-    assert.equal(true, exception);
-};
+describe('Core', function() {
+    it('should add a new hash table instance to the data structure registry', function() {
+        var registry = core.getDataStructureRegistry();
+        registry.put('mynewhashtable', scule.getHashTable(1500));
+        assert.equal(true, registry.contains('mynewhashtable'));        
+    });
+    it('should spawn several different data structures', function() {
+        var spawner = core.getDataStructureSpawner();
+        var table   = spawner.spawn('HashTable', [5000]);
+        assert.ok(table);
+        var bitset  = spawner.spawn('BitSet', [5000, 300]);
+        assert.ok(bitset);
+        var list    = spawner.spawn('LinkedList', []);
+        assert.ok(list);
+        var cache   = spawner.spawn('LRUCache', [100]);
+        assert.ok(cache);        
+    });
+    it('should construct a new hash table then throw an exception when attempting to create another instance with the same name', function() {
+        var director = core.getDataStructureRegistryDirector();
+        var struct   = director.spawnDataStructure('test', 'HashTable', [1000]);
+        assert.ok(struct);
+        var exception = false;
+        try {
+            director.spawnDataStructure('test', 'HashTable', [1000]);
+        } catch (e) {
+            exception = true;
+            assert.equal(e, 'data structure corresponding to key test already exists');
+        }
+        assert.equal(true, exception);        
+    });
+});

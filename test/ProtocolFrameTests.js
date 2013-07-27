@@ -25,29 +25,30 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+var assert   = require('assert');
 var protocol = require('../lib/protocol');
 
-exports['test ProtocolFrame'] = function(beforeExit, assert) {   
-    var frame = protocol.getProtocolFrame();
-    frame.addChunk('Command', 'new');
-    frame.addChunk('Class', 'BitSet');
-    assert.equal(frame.getChunk('Command'), 'new');
-    assert.equal(frame.getChunk('Class'), 'BitSet');
-    assert.equal(frame.getCommand(), 'new');
-    assert.equal(frame.getClass(), 'BitSet');
-};
-
-exports['test ProtocolFrameOptions'] = function(beforeExit, assert) {   
-    var frame = protocol.getProtocolFrame();
-    frame.addChunk('Options', 'test1, test2, test3,test4');
-    assert.equal(JSON.stringify(frame.getOptions()), JSON.stringify(["test1","test2","test3","test4"]));
-};
-
-exports['test ProtocolFrameParser'] = function(beforeExit, assert) {
-    var parser = protocol.getProtocolFrameParser();
-    var frame  = parser.parse("Command\tnew\nKey\tmynewbplustree\nClass\tBPlusTree\nOptions\t30000, 5000\n\r");
-    assert.equal(frame.getCommand(), 'new');
-    assert.equal(frame.getClass(), 'BPlusTree');
-    assert.equal(frame.getKey(), 'mynewbplustree');
-    assert.equal(JSON.stringify(frame.getOptions()), JSON.stringify(['30000', '5000']));
-};
+describe('Protocol', function() {
+    it('should test protocol frame accessors', function() {
+        var frame = protocol.getProtocolFrame();
+        frame.addChunk('Command', 'new');
+        frame.addChunk('Class', 'BitSet');
+        assert.equal(frame.getChunk('Command'), 'new');
+        assert.equal(frame.getChunk('Class'), 'BitSet');
+        assert.equal(frame.getCommand(), 'new');
+        assert.equal(frame.getClass(), 'BitSet');        
+    });
+    it('should test protocol frame option accessors', function() {
+        var frame = protocol.getProtocolFrame();
+        frame.addChunk('Options', 'test1, test2, test3,test4');
+        assert.equal(JSON.stringify(frame.getOptions()), JSON.stringify(["test1","test2","test3","test4"]));        
+    });
+    it('should parse a textual protocol frame and test accessors', function() {
+        var parser = protocol.getProtocolFrameParser();
+        var frame  = parser.parse("Command\tnew\nKey\tmynewbplustree\nClass\tBPlusTree\nOptions\t30000, 5000\n\r");
+        assert.equal(frame.getCommand(), 'new');
+        assert.equal(frame.getClass(), 'BPlusTree');
+        assert.equal(frame.getKey(), 'mynewbplustree');
+        assert.equal(JSON.stringify(frame.getOptions()), JSON.stringify(['30000', '5000']));        
+    });
+});
