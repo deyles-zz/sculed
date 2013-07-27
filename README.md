@@ -1,11 +1,11 @@
 ## What is SculeServer?
 
 *SculeServer* is a light-weight server built on top of [SculeJS](https://github.com/dan-deyles/sculejs "SculeJS"). It allows
-developers to persist data structures in memory and interact with them remotely over TCP using a [NSSocket](https://github.com/nodejitsu/nssocket "NSSocket")
+developers to persist data structures in memory and interact with them remotely via TCP, using a [NSSocket](https://github.com/nodejitsu/nssocket "NSSocket")
 based protocol. 
 
 The package also includes client libraries that streamline interaction with the server, and make building
-applications around SculeServer really easy.
+applications around *SculeServer* super simple (and fun).
 
 Data structures currently supported by *SculeServer* are:
 
@@ -20,9 +20,9 @@ Data structures currently supported by *SculeServer* are:
 
 ## Why would I use this thing?
 
-Why wouldn't you? :-)
+Why wouldn't you?!
 
-*SculeServer* can help with oretty much any task that requires persisting structured data between Node processes - 
+*SculeServer* can help with pretty much any task that requires persisting structured data between Node processes - 
 either running on the same machine, or a whole cluster of machines. Any time I need a simple, volatile data store 
 and don't want to go through the hassle of setting up RabbitMQ, MongoDB or MySQL I just spin up a *SculeServer* 
 instance and get to work.
@@ -46,11 +46,13 @@ Spooling up a *SculeServer* instance is pretty simple. Just check out the code a
 ```
 git clone git@github.com:dan-eyles/sculeserver.git
 cd sculeserver
+sudo npm install -g sculejs
 sudo npm install -g nssocket
 sudo npm install -g node-uuid
 sudo npm install -g
 npm link nssocket
 npm link node-uuid
+npm link sculejs
 ```
 
 Then to run the server:
@@ -112,13 +114,15 @@ need them, without any need for complicated configuration files.
 
 Over the next couple of months I'm planning on adding the following features to *SculeServer*:
 
-* NPM installable package
-* Ability to spawn *SculeServer* instances from the command line (optionally specifying a port)
+* An awesome NPM installable package
+* The ability to spawn *SculeServer* instances from the command line (optionally specifying a port)
 * Support for SculeJS collections - along with the powerful query language used to manipulate collections in memory
 * Support for Map/Reduce
 * Simple on-disk persistence for data structures and collections
 * Support for consistent hashing inside client code
 * Support for simple, asynchronous replication of data between *SculeServer* instances
+* More comprehensive documentation and examples
+* Full documentation for the protocol
 
 ## License yadda yadda yadda
 
