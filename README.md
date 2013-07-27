@@ -20,9 +20,12 @@ Data structures currently supported by *SculeServer* are:
 
 # Why would I use this thing?
 
-Pretty much any task that requires persisting structured data between Node processes - either running on the same
-machine, or a whole cluster of machines. Any time I need a simple, volatile data store and don't want to go through
-the hassle of setting up RabbitMQ, MongoDB or MySQL I just spin up a *SculeServer* instance and get to work.
+Why wouldn't you? :-)
+
+*SculeServer* can help with oretty much any task that requires persisting structured data between Node processes - 
+either running on the same machine, or a whole cluster of machines. Any time I need a simple, volatile data store 
+and don't want to go through the hassle of setting up RabbitMQ, MongoDB or MySQL I just spin up a *SculeServer* 
+instance and get to work.
 
 Some example applications for *SculeServer*:
 
