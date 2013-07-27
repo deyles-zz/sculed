@@ -1,4 +1,4 @@
-# What is SculeServer?
+## What is SculeServer?
 
 *SculeServer* is a light-weight server built on top of [SculeJS](https://github.com/dan-deyles/sculejs "SculeJS"). It allows
 developers to persist data structures in memory and interact with them remotely over TCP using a [NSSocket](https://github.com/nodejitsu/nssocket "NSSocket")
@@ -18,7 +18,7 @@ Data structures currently supported by *SculeServer* are:
 * Counter
 * [Bit Set](http://en.wikipedia.org/wiki/Bit_array "Bit Set")
 
-# Why would I use this thing?
+## Why would I use this thing?
 
 Why wouldn't you? :-)
 
@@ -39,7 +39,7 @@ for a single connected client (based on self reported statistics from the server
 traffic between the client and the server is running over an actual network, I'd also expect performance to degrade as
 concurrency increases.
 
-# Examples!
+## Examples!
 
 Spooling up a *SculeServer* instance is pretty simple. Just check out the code and run the following:
 
@@ -108,7 +108,7 @@ setInterval(function() {
 This example is deceptively simple - you could use *SculeServer* to dynamically establish and destroy queues as you
 need them, without any need for complicated configuration files.
 
-# So, what's next?
+## So, what's next?
 
 Over the next couple of months I'm planning on adding the following features to *SculeServer*:
 
