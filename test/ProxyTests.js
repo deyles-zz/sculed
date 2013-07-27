@@ -28,6 +28,9 @@
 var assert   = require('assert');
 var factory  = require('../lib/proxy');
 
+var scule  = require('sculejs');
+factory.setScule(scule);
+
 describe('Proxy', function() {
     it('should create a new HashMapProxy and test accessors', function() {
         var proxy = factory.factoryProxy('HashMap', [1000]);

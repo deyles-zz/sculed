@@ -10,6 +10,10 @@ socket.on('connect', function() {
 });
 socket.on('data', function(frame) {
     console.log(frame.toString() + "\n\n");
-    i++;
-    socket.write("Command\tset\nKey\tmynewhashtable\nSubKey\tkey" + i + "\nValue\tvalue" + i + "\n\r");
 });
+
+var i = 0;
+setInterval(function() {
+    socket.write("Command\tset\nKey\tmynewhashtable\nSubKey\tkey" + i + "\nValue\tvalue" + i + "\n\r");
+    i++;
+}, 200);

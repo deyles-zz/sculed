@@ -27,7 +27,9 @@
 
 var assert = require('assert');
 var core   = require('../lib/core');
+
 var scule  = require('sculejs');
+core.setScule(scule);
 
 describe('Core', function() {
     it('should add a new hash table instance to the data structure registry', function() {

@@ -29,6 +29,9 @@ var assert   = require('assert');
 var protocol = require('../lib/protocol');
 var core     = require('../lib/core');
 
+var scule  = require('sculejs');
+core.setScule(scule);
+
 describe('Protocol', function() {
     it('should execute various SculeServer functions locally', function() {
         var director = core.getDataStructureRegistryDirector();
