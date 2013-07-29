@@ -1,0 +1,29 @@
+#!/usr/bin/env node
+
+var program = require("commander");
+var colors  = require("colors");
+var core    = require("../lib/core");
+
+program
+    .version('0.0.2')
+    .option('-p, --port <n>', 'tcp port number', parseInt)
+    .option('-v, --verbose', 'verbose console output')
+    .parse(process.argv);
+
+program.on('--help', function(){
+  console.log('  Examples:');
+  console.log('');
+  console.log('    $ sculed --port 72853 --verbose');
+  console.log('    $ sculed -p 72853');
+  console.log('');
+});
+
+if (!program.port) {
+    program.help();
+}
+
+core.setDebug((program.verbose === true));
+core.getServer().listen(program.port, function() {
+    var boot = 'server listening on ' + program.port;
+    core.log(boot.red);
+});
