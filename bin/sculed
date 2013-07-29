@@ -24,6 +24,5 @@ if (!program.port) {
 
 core.setDebug((program.verbose === true));
 core.getServer().listen(program.port, function() {
-    var boot = 'server listening on ' + program.port;
-    core.log(boot.red);
+    core.log('server listening on ' + program.port);
 });
