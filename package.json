@@ -1,16 +1,29 @@
 {
-  "private":false,
-  "version":"0.0.2",
-  "name": "sculeserver",
-  "description": "SculeJS data structure server",
-  "author": "Dan Eyles <dan@irlgaming.com>",
-  "repository" : {"type": "git", "url": "git@github.com:dan-eyles/sculejs.git"},
-  "engine": "node >= 0.8",
-  "dependencies":{
-      "nssocket":">= 0.5.1",
-      "node-uuid": ">= 1.4.0"
-  },
-  "scripts": {
-      "test":"mocha test/*"
-  }
+    "private": false,
+    "version": "0.0.2",
+    "name": "sculeserver",
+    "description": "SculeJS data structure server",
+    "author": "Dan Eyles <dan@irlgaming.com>",
+    "repository" : {
+        "type": "git", 
+        "url": "git@github.com:dan-eyles/sculejs.git"
+    },
+    "engine": "node >= 0.8",
+    "dependencies":{
+        "nssocket": ">= 0.5.1",
+        "node-uuid": ">= 1.4.0",
+        "commander": ">= 2.0.0",
+        "colors": ">= 0.6.1"
+    },
+    "scripts": {
+        "test": "mocha test/*"
+    },
+    "main": "./bin",
+    "bin": {
+        "sculed": "./bin/sculed"
+    },
+    "directory": {
+        "test": "./test",
+        "bin": "./bin"
+    }
 }
