@@ -1,13 +1,13 @@
-## What is SculeServer?
+## What is sculed?
 
-*SculeServer* is a light-weight server built on top of [SculeJS](https://github.com/dan-deyles/sculejs "SculeJS"). It allows
+*sculed* (SculeJS daemon) is a light-weight server built on top of [SculeJS](https://github.com/dan-deyles/sculejs "SculeJS"). It allows
 developers to persist data structures in memory and interact with them remotely via TCP, using a [NSSocket](https://github.com/nodejitsu/nssocket "NSSocket")
 based protocol. 
 
 The package also includes client libraries that streamline interaction with the server, and make building
-applications around *SculeServer* super simple (and fun).
+applications around *sculed* super simple (and fun).
 
-Data structures currently supported by *SculeServer* are:
+Data structures currently supported by *sculed* are:
 
 * [Hash Table](http://en.wikipedia.org/wiki/Hash_Table "Hash Table")
 * [Binary Search Tree](http://en.wikipedia.org/wiki/Binary_Search_Tree "Binary Search Tree")
@@ -22,43 +22,43 @@ Data structures currently supported by *SculeServer* are:
 
 Why wouldn't you?!
 
-*SculeServer* can help with pretty much any task that requires persisting structured data between Node processes - 
+*sculed* can help with pretty much any task that requires persisting structured data between Node processes - 
 either running on the same machine, or a whole cluster of machines. Any time I need a simple, volatile data store 
-and don't want to go through the hassle of setting up RabbitMQ, MongoDB or MySQL I just spin up a *SculeServer* 
+and don't want to go through the hassle of setting up RabbitMQ, MongoDB or MySQL I just spin up a *sculed* 
 instance and get to work.
 
-Some example applications for *SculeServer*:
+Some example applications for *sculed*:
 
 * Setting up a light-weight queue server to facilitate distributed processing tasks (e.g. web scraping)
 * Persisting key/value pairs between Node processes
 * Keeping counts of things in memory across different Node processes (e.g. page views, error counts)
 * Caching log entries in memory before spooling them out to aggregation services
 
-In terms of performance, *SculeServer* does pretty well. Running over loopback I've seen rates of up around 2500 requests p/s
+In terms of performance, *sculed* does pretty well. Running over loopback I've seen rates of up around 2500 requests p/s
 for a single connected client (based on self reported statistics from the server). Obviously latency will be higher when
 traffic between the client and the server is running over an actual network, I'd also expect performance to degrade as
 concurrency increases.
 
 ## Examples!
 
-Spooling up a *SculeServer* instance is pretty simple. Just check out the code and run the following:
+Spooling up a *sculed* instance is pretty simple. Just check out the code and run the following:
 
 ```
-git clone git@github.com:dan-eyles/sculeserver.git
-cd sculeserver
-sudo npm install -g sculejs
-sudo npm install -g nssocket
-sudo npm install -g node-uuid
+git clone git@github.com:dan-eyles/sculed.git
+cd sculed
 sudo npm install -g
-npm link nssocket
-npm link node-uuid
-npm link sculejs
+```
+
+or 
+
+```
+sudo npm install -g sculed
 ```
 
 Then to run the server:
 
 ```
-node lib/app.js
+sculed -p 72853 --verbose
 ```
 
 Setting up a client looks like the following:
@@ -74,7 +74,7 @@ client.connect('127.0.0.1', 72853, function() {
 
 ```
 
-Once you've established a connection to the *SculeServer* instance, you can start working with your data structures. 
+Once you've established a connection to the *sculed* instance, you can start working with your data structures. 
 For example, you might have a process running on one machine adding URLs to a queue:
 
 ```javascript
@@ -107,20 +107,20 @@ setInterval(function() {
 }, 1000);
 ```
 
-This example is deceptively simple - you could use *SculeServer* to dynamically establish and destroy queues as you
+This example is deceptively simple - you could use *sculed* to dynamically establish and destroy queues as you
 need them, without any need for complicated configuration files.
 
 ## So, what's next?
 
-Over the next couple of months I'm planning on adding the following features to *SculeServer*:
+Over the next couple of months I'm planning on adding the following features to *sculed*:
 
 * An awesome NPM installable package
-* The ability to spawn *SculeServer* instances from the command line (optionally specifying a port)
+* The ability to spawn *sculed* instances from the command line (optionally specifying a port)
 * Support for SculeJS collections - along with the powerful query language used to manipulate collections in memory
 * Support for Map/Reduce
 * Simple on-disk persistence for data structures and collections
 * Support for consistent hashing inside client code
-* Support for simple, asynchronous replication of data between *SculeServer* instances
+* Support for simple, asynchronous replication of data between *sculed* instances
 * More comprehensive documentation and examples
 * Full documentation for the protocol
 
