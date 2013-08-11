@@ -1,6 +1,6 @@
 {
     "private": false,
-    "version": "0.0.4",
+    "version": "0.0.5",
     "name": "sculed",
     "description": "SculeJS data structure server",
     "author": "Dan Eyles <dan@irlgaming.com>",
@@ -16,6 +16,13 @@
         "commander": ">= 2.0.0",
         "colors": ">= 0.6.1"
     },
+    "keywords": [
+      "nosql",
+      "database",
+      "data structures",
+      "sculejs",
+      "server"
+    ],    
     "scripts": {
         "test": "mocha test/*"
     },
