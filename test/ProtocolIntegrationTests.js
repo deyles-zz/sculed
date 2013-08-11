@@ -75,6 +75,18 @@ describe('Protocol', function() {
         
         socket.invoke(['new'], {
             uuid:     hash,
+            key:     'dummy',
+            type:    'Collection',
+            options: []
+        });
+        assert.equal('new', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
+        
+        socket.invoke(['new'], {
+            uuid:     hash,
             key:     'hashy',
             type:    'HashTable',
             options: [1000]
@@ -241,6 +253,74 @@ describe('Protocol', function() {
         assert.equal(404,   socket.response.data.status);
         socket.reset();
 
+        /**
+         * Collection tests
+         */
+        for (var i=0; i < 1000; i++) {
+            socket.invoke(['save'], {
+                uuid:     hash,
+                key:     'dummy',
+                object:   {i: i}            
+            });
+            assert.equal('save', socket.response.namespace[0]);
+            assert.equal(hash,  socket.response.data.uuid);
+            assert.equal('ok',  socket.response.data.message);
+            assert.equal(200,   socket.response.data.status);
+            socket.reset();            
+        }
+        
+        socket.invoke(['countq'], {
+            uuid:     hash,
+            key:     'dummy',
+            query:   {},
+            conditions: {}
+        });
+        assert.equal('countq', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal(1000,     socket.response.data.data);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
+        
+        socket.invoke(['find'], {
+            uuid:     hash,
+            key:     'dummy',
+            query:   {i:{$gte:500, $lt:600}},
+            conditions: {$sort:{i:0}}
+        });
+        assert.equal('find', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal(100,     socket.response.data.data.length);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
+
+        socket.invoke(['remove'], {
+            uuid:     hash,
+            key:     'dummy',
+            query:   {i:{$gte:500, $lt:600}},
+            conditions: {}
+        });
+        assert.equal('remove', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal(100,     socket.response.data.data.length);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
+
+        socket.invoke(['countq'], {
+            uuid:     hash,
+            key:     'dummy',
+            query:   {},
+            conditions: {}
+        });
+        assert.equal('countq', socket.response.namespace[0]);
+        assert.equal(hash,  socket.response.data.uuid);
+        assert.equal(900,     socket.response.data.data);
+        assert.equal('ok',  socket.response.data.message);
+        assert.equal(200,   socket.response.data.status);
+        socket.reset();
+        
         /**
          * Stack tests
          */
@@ -454,10 +534,6 @@ describe('Protocol', function() {
         assert.equal('ok',  socket.response.data.message);
         assert.equal(200,   socket.response.data.status);
         assert.equal(0, socket.response.data.stats.uptime_s);
-        assert.equal(0, socket.response.data.stats.trans_s);
-        assert.equal(14, socket.response.data.stats.writes);
-        assert.equal(12, socket.response.data.stats.reads);
-        assert.equal(26, socket.response.data.stats.trans);
         socket.reset();       
        
         socket.invoke(['destroy'], {

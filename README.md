@@ -9,6 +9,7 @@ applications around *sculed* super simple (and fun).
 
 Data structures currently supported by *sculed* are:
 
+* [Collection] (https://github.com/dan-eyles/sculejs/wiki/Working-With-Collections "Collection")
 * [Hash Table](http://en.wikipedia.org/wiki/Hash_Table "Hash Table")
 * [Binary Search Tree](http://en.wikipedia.org/wiki/Binary_Search_Tree "Binary Search Tree")
 * [Bloom Filter](http://en.wikipedia.org/wiki/Bloom_Filter "Bloom Filter")
@@ -114,12 +115,9 @@ need them, without any need for complicated configuration files.
 
 Over the next couple of months I'm planning on adding the following features to *sculed*:
 
-* An awesome NPM installable package
-* The ability to spawn *sculed* instances from the command line (optionally specifying a port)
-* Support for SculeJS collections - along with the powerful query language used to manipulate collections in memory
 * Support for Map/Reduce
 * Simple on-disk persistence for data structures and collections
-* Support for consistent hashing inside client code
+* Support for consistent hashing inside client code (maybe?)
 * Support for simple, asynchronous replication of data between *sculed* instances
 * More comprehensive documentation and examples
 * Full documentation for the protocol
