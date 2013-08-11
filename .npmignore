@@ -1,0 +1,10 @@
+nbproject
+.DS_Store
+.travis.yml
+.gitignore
+.git
+.npmignore
+examples
+node_modules
+test_manual
+build
