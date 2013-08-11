@@ -9,7 +9,7 @@ applications around *sculed* super simple (and fun).
 
 Data structures currently supported by *sculed* are:
 
-* [Collection] (https://github.com/dan-eyles/sculejs/wiki/Working-With-Collections "Collection")
+* [Collection](https://github.com/dan-eyles/sculejs/wiki/Working-With-Collections "Collection")
 * [Hash Table](http://en.wikipedia.org/wiki/Hash_Table "Hash Table")
 * [Binary Search Tree](http://en.wikipedia.org/wiki/Binary_Search_Tree "Binary Search Tree")
 * [Bloom Filter](http://en.wikipedia.org/wiki/Bloom_Filter "Bloom Filter")
